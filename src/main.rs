@@ -16,7 +16,11 @@ struct TokenLogger;
 impl TokenSink for TokenLogger {
 
     fn process_token(&mut self, token: Token) {
-        println!("{:?}", token);
+        match token {
+            TagToken(tag) => println!("{:?}", tag),
+            _ =>  {}
+        }
+        
     }
 }
 
