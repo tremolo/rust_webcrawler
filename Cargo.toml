@@ -2,3 +2,6 @@
 name = "rust-crawler"
 version = "0.1.0"
 authors = ["Lutz Paelike <lutz@delutze.de>"]
+
+[dependencies]
+hyper = "0.6.13"
