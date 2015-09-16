@@ -15,8 +15,10 @@ use html5ever::driver::{tokenize_to, one_input};
 
 use std::thread;
 
+use std::sync::{Mutex, Arc};
+
 struct LinkFinder {
-    links: Vec<Tendril<UTF8>>
+    links: Vec<String>
 }
 
 impl TokenSink for LinkFinder {
@@ -29,7 +31,7 @@ impl TokenSink for LinkFinder {
                     for attr in tag.attrs {
                         if attr.name.local.as_slice() == "href" {
                             //println!("{:?}", attr.value);
-                            self.links.push(attr.value);
+                            self.links.push(String::from(attr.value));
                         }
                         
                     }
@@ -60,10 +62,31 @@ fn main() {
 
 
     let mut sink = LinkFinder{links: vec![]};
-    tokenize_to(sink, one_input(Tendril::from(body)), Default::default());
+    sink = tokenize_to(sink, one_input(Tendril::from(body)), Default::default());
+    let l = sink.links;
+
+    let data = Arc::new(Mutex::new(l));
+    let mut handlers = vec![];
+
 
     for i in 0..5 {
-            thread::spawn(|| { println!("Hello")});
+            let data = data.clone();
+            handlers.push(thread::spawn(move || { 
+                loop {
+                    let link = {
+                        data.lock().unwrap().pop()
+                    };
+                    let mut data = data.lock().unwrap();
+                    match data.pop() {
+                        Some(d) => println!("Thread: {}, link {}", i,d),
+                        None => break
+                    }
+                    println!("Hello")
+                }
+            }));
+    }
+    for handler in handlers {
+        handler.join();
     }
 
 }
