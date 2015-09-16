@@ -1,7 +1,24 @@
 extern crate hyper;
+extern crate html5ever;
+extern crate tendril;
+
 use hyper::client::Client;
 use std::io::Read;
 
+use tendril::*;
+
+use html5ever::tokenizer::{TokenSink, Token, TokenizerOpts, ParseError};
+use html5ever::tokenizer::{TagToken};
+use html5ever::driver::{tokenize_to, one_input};
+
+struct TokenLogger;
+
+impl TokenSink for TokenLogger {
+
+    fn process_token(&mut self, token: Token) {
+        println!("{:?}", token);
+    }
+}
 
 fn main() {
     let client = Client::new();
@@ -17,5 +34,10 @@ fn main() {
     let mut body = String::new();
     response.read_to_string(&mut body);
     println!("{}", body);
+
+
+    let mut sink = TokenLogger;
+    tokenize_to(sink, one_input(Tendril::from(body)), Default::default());
+
 
 }
