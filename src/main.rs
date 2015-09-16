@@ -17,7 +17,10 @@ impl TokenSink for TokenLogger {
 
     fn process_token(&mut self, token: Token) {
         match token {
-            TagToken(tag) => println!("{:?}", tag),
+            TagToken(tag) => {  
+                println!("{:?}", tag) 
+
+            },
             _ =>  {}
         }
         
